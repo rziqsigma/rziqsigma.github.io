@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JumpAndAvoid</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #222;
+            color: white;
+            font-family: Arial;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 15px;
+        }
+
+        #score {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        #game {
+            width: 90%;
+            max-width: 700px;
+            height: 350px;
+            margin: auto;
+            background: skyblue;
+            border: 4px solid white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #player {
+            width: 40px;
+            height: 40px;
+            background: red;
+            position: absolute;
+            bottom: 0;
+            left: 80px;
+            border-radius: 8px;
+        }
+
+        #obstacle {
+            width: 40px;
+            height: 60px;
+            background: green;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+
+        #ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 10px;
+            background: #654321;
+        }
+
+        button {
+            margin: 15px;
+            padding: 12px 25px;
+            font-size: 17px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🦘 Jump Game</h1>
+
+    <div id="score">Skor: 0</div>
+
+    <div id="game">
+        <div id="player"></div>
+        <div id="obstacle"></div>
+        <div id="ground"></div>
+    </div>
+
+    <button onclick="jump()">JUMP</button>
+
+    <script>
+        const player = document.getElementById("player");
+        const obstacle = document.getElementById("obstacle");
+        const scoreText = document.getElementById("score");
+
+        let jumping = false;
+        let score = 0;
+        let gameOver = false;
+        let obstacleX = 0;
+
+        function jump() {
+            if (jumping || gameOver) return;
+
+            jumping = true;
+
+            let position = 0;
+
+            let up = setInterval(function() {
+                position += 8;
+                player.style.bottom = position + "px";
+
+                if (position >= 150) {
+                    clearInterval(up);
+
+                    let down = setInterval(function() {
+                        position -= 5;
+                        player.style.bottom = position + "px";
+
+                        if (position <= 0) {
+                            clearInterval(down);
+                            player.style.bottom = "0px";
+                            jumping = false;
+                        }
+                    }, 20);
+                }
+            }, 20);
+        }
+
+        function moveObstacle() {
+            if (gameOver) return;
+
+            obstacleX += 2;
+
+            if (obstacleX > game.clientWidth) {
+                obstacleX = -40;
+                score++;
+                scoreText.innerText = "Skor: " + score;
+            }
+
+            obstacle.style.right = obstacleX + "px";
+
+            checkCollision();
+
+            requestAnimationFrame(moveObstacle);
+        }
+
+        function checkCollision() {
+            const playerRect = player.getBoundingClientRect();
+            const obstacleRect = obstacle.getBoundingClientRect();
+
+            if (
+                playerRect.left < obstacleRect.right &&
+                playerRect.right > obstacleRect.left &&
+                playerRect.top < obstacleRect.bottom &&
+                playerRect.bottom > obstacleRect.top
+            ) {
+                gameOver = true;
+
+                alert("GAME OVER! Skor kamu: " + score);
+
+                location.reload();
+            }
+        }
+
+        moveObstacle();
+
+        document.addEventListener("keydown", function(event) {
+            if (event.code === "Space") {
+                jump();
+            }
+        });
+    </script>
+
+</body>
+</html>
